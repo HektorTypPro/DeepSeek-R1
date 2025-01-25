@@ -1,0 +1,50 @@
+import requests
+
+# Ustawienia API
+API_URL = "https://api.deepseek.com/generate-image"  # Adres API DeepSeek-AI (przykładowy)
+API_KEY = "YOUR_API_KEY"  # Wstaw swój klucz API
+
+# Funkcja do generowania obrazów
+def generate_image(prompt, resolution="1024x1024"):
+    """
+    Generuje obraz na podstawie promptu tekstowego.
+    :param prompt: Opis obrazu (np. "piękny krajobraz górski w Polsce").
+    :param resolution: Rozdzielczość obrazu (np. "1024x1024").
+    :return: URL wygenerowanego obrazu lub komunikat o błędzie.
+    """
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "prompt": prompt,
+        "resolution": resolution,
+    }
+
+    try:
+        response = requests.post(API_URL, json=payload, headers=headers)
+        response.raise_for_status()  # Sprawdzenie, czy odpowiedź jest poprawna
+
+        # Odczytanie wyniku
+        data = response.json()
+        if "image_url" in data:
+            return data["image_url"]  # Zwróć URL do obrazu
+        else:
+            return "Błąd: Nie znaleziono obrazu w odpowiedzi API."
+
+    except requests.exceptions.RequestException as e:
+        return f"Błąd połączenia z API: {e}"
+
+# Przykład użycia
+if __name__ == "__main__":
+    prompt = "Rzeczywisty widok na Tatry zimą, z błękitnym niebem i śniegiem"
+    resolution = "1024x1024"
+
+    print("Generowanie obrazu...")
+    image_url = generate_image(prompt, resolution)
+
+    if "http" in image_url:
+        print(f"Obraz został wygenerowany: {image_url}")
+    else:
+        print(image_url)
